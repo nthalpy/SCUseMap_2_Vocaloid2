@@ -1,64 +1,48 @@
+import answer;
 import _;
 
-object __chatQueueElement {
-    var pStr;
-    var timestamp;
-};
+const pStringBuffer = Db(300);
 
-const __queue = EUDArray(16);
-var __queueSize = 16;
-var __queuePivot = 0;
+function replaceChat(answerIndex) {
+    for (var line = 0; line < 11; line++) {
+        var pChat = 0x640B60 + line * 218;
 
-const __dbs = [
-    Db(300), Db(300), Db(300), Db(300), 
-    Db(300), Db(300), Db(300), Db(300),
-    Db(300), Db(300), Db(300), Db(300), 
-    Db(300), Db(300), Db(300), Db(300)
-];
+        // String is empty.
+        if (bread(pChat) == 0) 
+            continue;
+        
+        var len = strlen(pChat);
+        // String has already processed.
+        if (bread(pChat + len - 1) == 0x1D) 
+            continue;        
 
-var __chatRemainTimeInMs = 5000;
+        foreach (cp : EUDLoopPlayer("Human")) {
+            dbstr_print(pStringBuffer, PName(cp), ":");
 
-const __sb = StringBuffer();
+            var matches = true;
+            for (var i = 0; i < strlen(pStringBuffer); i++) {
+                if (bread(pStringBuffer + i) != bread(pChat + i)) {
+                    matches = false;
+                    break;
+                }
+            }
 
-function init() {
-    for (var idx = 0; idx < __queueSize; idx++) {
-        __queue[idx] = __chatQueueElement.alloc();
-    }
-
-    for (var idx = 0; idx < __queueSize; idx++) {
-        const casted = __chatQueueElement.cast(__queue[idx]);
-
-        casted.pStr = __dbs[idx];
-        casted.timestamp = _.now();
-    }
-}
-
-function appendChatHistory(cp, pStrSrc) {
-    const casted = __chatQueueElement.cast(__queue[__queuePivot]);
-
-    dbstr_print(casted.pStr, ptr2s(pStrSrc));
-    casted.timestamp = _.now();
-
-    __queuePivot = (__queuePivot + 1) % __queueSize;
-}
-
-function render() {
-    var now = _.now();
-    var count = 7;
-
-    __sb.insert(0);
-    
-    for (var offset = 0; offset < count; offset++) {
-        var idx = (__queuePivot + __queueSize + offset - count) % __queueSize;
-        const casted = __chatQueueElement.cast(__queue[idx]);
-
-        if (_.now() - casted.timestamp < __chatRemainTimeInMs) {
-            __sb.append(idx, ptr2s(casted.pStr));
-        }
-
-        // no trailing crlf
-        if (offset != count - 1) {
-            __sb.append("\n");
+            if (matches == false)
+                continue;
+        
+            // PName, colon, space, white color code
+            var pContentSrc = pChat + (strlen(pStringBuffer) - 1) + 3;
+            var match = answer.checkAnswerPtr(pContentSrc, answerIndex);
+            
+            if (match == answer.checkAnswer_Title) {
+                dbstr_print(pChat, ptr2s(pChat), " \x1F <- 제목 정답!", "\x1D");
+            }
+            else if (match == answer.checkAnswer_Composer) {
+                dbstr_print(pChat, ptr2s(pChat), " \x17 <- 작곡가 정답!", "\x1D");
+            }
+            else {
+                dbstr_print(pChat, ptr2s(pChat), "\x1D");
+            }
         }
     }
 }

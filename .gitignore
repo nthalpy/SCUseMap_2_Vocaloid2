@@ -1,3 +1,6 @@
-BuildData_*
+BulidData_*
+
+Source/__epspy__
+Source/__pycache__
 
 copy_to_chatEvent.txt

@@ -63,7 +63,7 @@ for row in sheet_lyric.iter_rows():
     l = lyric()
 
     l.timeInMs = int(1000 * float(row[0].value))
-    l.lyric = f'{row[1].value}   {row[2].value}'
+    l.lyric = f'{row[1].value}     {row[2].value}'
 
     if row[3].value != None:
         dataIndex = int(row[3].value)
@@ -127,7 +127,20 @@ with open('Source/answer_autogen.eps', 'w+', encoding='utf8') as answer_autogen:
             f'{idx}, Db("{d.displayTitle}"), [{",".join(d.titleAnswers)}], Db("{d.composerName}"), [{",".join(d.composerAnswers)}], {d.timeInMs}, Db("{d.releaseDate}"));' + 
             '\n')
 
-    answer_autogen.write('}')
+    answer_autogen.write('}\n')
+
+    answer_autogen.write('function matchAnswer(p) {\n')
+
+    for idx in range(len(chatEventStrs)):
+        v = chatEventStrs[idx]
+
+        if v is None:
+            continue
+
+        answer_autogen.write(f'if (strcmp(Db("{v}"), p) == 0) return {idx};\n')
+
+    answer_autogen.write('return 0;\n')
+    answer_autogen.write('}\n')
 
 with open('Source/lyric_autogen.eps', 'w+', encoding='utf8') as lyric_autogen:
     lyric_autogen.write('import lyric;\n')
@@ -145,6 +158,6 @@ with open('Source/lyric_autogen.eps', 'w+', encoding='utf8') as lyric_autogen:
         replaced = l.lyric.replace('"', '\\"', 999)
         lyric_autogen.write(f'lyric.__setData({idx}, {l.timeInMs}, Db("{replaced}"));\n')
 
-    lyric_autogen.write('}')
+    lyric_autogen.write('}\n')
 
 

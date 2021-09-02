@@ -1,0 +1,77 @@
+import _;
+
+var __segmentStartTime;
+
+var __Status_Initial1 = 0;
+var __Status_Initial2 = 1;
+var __Status_Initial3 = 2;
+
+var __ending_Status = __Status_Initial1;
+
+const __sb = StringBuffer(1024);
+
+function changeStatus(s) {
+    __segmentStartTime = _.now();
+    __ending_Status = s;
+}
+
+function startEnding() {
+    __segmentStartTime = _.now();
+}
+
+function render() {
+    if (__ending_Status == __Status_Initial1) {
+        foreach (cp : EUDLoopPlayer("Human")) {
+            setcurpl(cp);
+            
+            __sb.insert(0);
+            __sb.append("\x13\x19┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n");
+            __sb.append("\n");
+            __sb.append("\x13\x04여기까지 플레이 해주셔서 감사합니다!\n");
+            __sb.append("\x13\x04저번에 만든 맵은 너무 어려워서 이번에는 쉬운 맵이 되도록 노력 했습니다.\n"); 
+            __sb.append("\n");
+            __sb.append("\x13\x19┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+
+            __sb.DisplayAt(0);
+        }
+
+        if (_.now() - __segmentStartTime > 4000) {
+            changeStatus(__Status_Initial2);
+        }
+    }
+    else if (__ending_Status == __Status_Initial2) {
+        foreach (cp : EUDLoopPlayer("Human")) {
+            setcurpl(cp);
+            
+            __sb.insert(0);
+            __sb.append("\x13\x19┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n");
+            __sb.append("\n");
+            __sb.append("\x13\x04이번에 기존 맵들을 하면서 사소하게 불편했던 점 들도 몇개 고쳐봤는데,\n");
+            __sb.append("\x13\x04플레이 하시는 여러분의 마음에 들었으면 좋겠습니다.\n");
+            __sb.append("\n");
+            __sb.append("\x13\x19┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+
+            __sb.DisplayAt(0);
+        }
+
+        if (_.now() - __segmentStartTime > 4000) {
+            changeStatus(__Status_Initial3);
+        }
+    }
+    else if (__ending_Status == __Status_Initial3) {
+        foreach (cp : EUDLoopPlayer("Human")) {
+            setcurpl(cp);
+            
+            __sb.insert(0);
+            __sb.append("\x13\x19┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n");
+            __sb.append("\n");
+            __sb.append("\x13\x04마지막으로, 사용된 메들리는\n");
+            __sb.append("\x13\x04kamihi 님의 \x1F보컬로이드 보사노바 메들리 feat. 하츠네 미쿠\x04 입니다.\n");
+            __sb.append("\x13\x06YouTube\x04에도 올라와 있으니 한 번씩 들어봅시다.\n");
+            __sb.append("\n");
+            __sb.append("\x13\x19┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+
+            __sb.DisplayAt(0);
+        }
+    }
+}

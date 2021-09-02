@@ -1,3 +1,4 @@
+import _;
 import answer_autogen;
 
 object data {
@@ -32,4 +33,57 @@ function __setData(index, a1, a2, a3, a4, a5, a6) {
 
 function init() {
     answer_autogen.load();
+}
+
+var checkAnswer_Title = 1;
+var checkAnswer_Title_Late = 2;
+var checkAnswer_Composer = 3;
+var checkAnswer_Composer_Late = 4;
+
+function contains(arr: EUDArray, key) {
+    for (var i = 0; true; i++) {
+        if (arr[i] == 0)
+            return false;
+
+        if (arr[i] == key)
+            return true;
+    }
+}
+
+var __multipleUserAnswerLatency = 200;
+
+function checkAnswer(key, answerIndex) {
+    if (answerIndex == -1 || answerIndex >= tableSize)
+        return 0;
+
+    const ans = data.cast(table[answerIndex]);
+
+    if (ans.titleAnswerTimeInMs == 0 
+        || ans.titleAnswerTimeInMs + __multipleUserAnswerLatency >= _.now()) {
+
+        if (contains(ans.musicAnswerIndexes, key)) {
+            if (ans.titleAnswerTimeInMs == 0)
+                ans.titleAnswerTimeInMs = _.now();
+        
+            return checkAnswer_Title;
+        }
+    }
+
+    if (ans.composerAnswerTimeInMs == 0 
+        || ans.composerAnswerTimeInMs + __multipleUserAnswerLatency >= _.now()) {
+
+        if (contains(ans.composerAnswerIndexes, key)) {
+            if (ans.composerAnswerTimeInMs == 0)
+                ans.composerAnswerTimeInMs = _.now();
+
+            return checkAnswer_Composer;
+        }
+    }
+
+    return 0;
+}
+
+function checkAnswerPtr(pChatContent, answerIndex) {
+    var key = answer_autogen.matchAnswer(pChatContent);
+    return checkAnswer(key, answerIndex);
 }

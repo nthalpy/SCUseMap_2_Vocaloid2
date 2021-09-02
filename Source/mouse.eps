@@ -1,0 +1,30 @@
+import _;
+
+var mX;
+var mY;
+var status;
+
+var __mouseUse = 0;
+
+function init() {
+	EUDRegisterObjectToNamespace("Mo", __mouseUse);
+}
+
+function mouseSwitch(use) {
+    __mouseUse = use;
+}
+
+const __mouseLoc = $L("P1");
+const __mouseUnit = $U("Cave-in");
+
+function trackMouse(cp) {
+    const v = EPD(0x58DC4C) + (__mouseLoc + cp) * 5;
+
+    mX = dwread_epd(v);
+    mY = dwread_epd(v+1);
+
+    if (Deaths(cp, Exactly, 1, __mouseUnit))
+        status = 1;
+    else
+        status = 0;
+}

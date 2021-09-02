@@ -2,6 +2,7 @@ import gameplay;
 import gameStatus;
 import musicSystem;
 import chatSystem;
+import mouse;
 import answer;
 import lyric;
 import _;
@@ -12,14 +13,12 @@ function onPluginStart() {
     randomize();
 
     musicSystem.init();
-    chatSystem.init();
     answer.init();
     lyric.init();
+    mouse.init();
 
     _.singleBan();
     _.speedBan();
-    _.mouseInit();
-    
     _.leaderBoardTrigger();
 
     SetMemoryEPD(EPD(0x657A9C), SetTo, 0);
@@ -36,17 +35,6 @@ function beforeTriggerExec() {
 }
 
 function afterTriggerExec() {
-    //gameStatus.update();
-    //gameplay.exec();
-
-    // var v = (dwread_epd(EPD(0x640B58)) + 10) % 11;
-    var v = (_.now() / 500) % 12;
-
-    var p = 0x640B60 + v * 218;
-    if (dwread(p) != 0) {
-        eprintln(v, ", ", p, ", ", ptr2s(p));
-    }
-    else {
-        eprintln(v, ", ", p);
-    }
+    gameStatus.update();
+    gameplay.exec();
 }

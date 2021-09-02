@@ -1,5 +1,168 @@
-const isOpeningPlaying = false;
+import gameStatus;
+import mouse;
+import soundEffect;
+import _;
 
-function exec() {
+var isInOpening = false;
 
+var __segmentStartTime;
+
+var __Status_Initial1 = 0;
+var __Status_Initial2 = 1;
+var __Status_Setting1 = 2;
+var __Status_Initial3 = 3;
+
+var __opening_Status = __Status_Initial1;
+
+const __sb = StringBuffer(1024);
+
+function changeStatus(s) {
+    __segmentStartTime = _.now();
+    __opening_Status = s;
+}
+
+function startOpening() {
+    __segmentStartTime = _.now();
+    isInOpening = true;
+}
+
+function render() {
+    if (__opening_Status == __Status_Initial1) {
+        foreach (cp : EUDLoopPlayer("Human")) {
+            setcurpl(cp);
+
+            __sb.insert(0);
+            __sb.append("\x13\x19┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n");
+            __sb.append("\n");
+            __sb.append("\x13\x1F보컬로이드 메들리 맞히기\n");
+            __sb.append("\n");
+            __sb.append("\x13\x04맵 제작: Harnel\n");
+            __sb.append("\x13\x04오픈소스 제작: Avlos(갈대)\n");
+            __sb.append("\x13\x04도움 주신 분: zzt, Artanis\n");
+            __sb.append("\n");
+            __sb.append("\x13\x19┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+            
+            __sb.DisplayAt(0);
+        }
+
+        if (_.now() - __segmentStartTime > 5000) {
+            changeStatus(__Status_Initial2);
+        }
+    }
+    else if (__opening_Status == __Status_Initial2) {
+        foreach (cp : EUDLoopPlayer("Human")) {
+            setcurpl(cp);
+
+            __sb.insert(0);
+            __sb.append("\x13\x19┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n");
+            __sb.append("\n");
+            __sb.append("\x13\x04지금부터 보컬로이드 곡이 \x1B어레인지 된 메들리\x04가 재생됩니다.\n");
+            __sb.append("\x13\x04메들리를 듣고 화면에 \x11[???]\x04 로 표시된 부분에 들어갈 것을 맞히면 됩니다.\n");
+            __sb.append("\x13\x04점수는 \x1F물음표 마다 계산되며\x04, 짧은 간격 안에 입력했다면 \x07여러명이 맞힐 수 있습니다\x04.\n");
+            __sb.append("\n");
+            __sb.append("\x13\x04예시: 화면에 \x11곡명: [???]\x04 가 표시 될 경우 곡명을 맞혀야 함.\n");
+            __sb.append("\n");
+            __sb.append("\x13\x19┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+
+            __sb.DisplayAt(0);
+        }
+
+        if (_.now() - __segmentStartTime > 5000) {
+            changeStatus(__Status_Setting1);
+        }
+    }
+    else if (__opening_Status == __Status_Setting1) {
+        var setUser = gameStatus.setUser;
+
+        foreach (cp : EUDLoopPlayer("Human")) {
+            setcurpl(cp);
+
+            __sb.insert(0);
+            __sb.append("\x13\x19┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n");
+            __sb.append("\n");
+            __sb.append("\x13\x04세팅할 것은 없지만 마음의 준비를 해야 하니\n");
+            __sb.append("\x13\x04", PColor(setUser), PName(setUser) ,"\x04님이 시작 버튼을 눌러주세요!\n");
+            __sb.append("\n");
+            
+            var remainTime = 1 + ((__segmentStartTime + 30000) - _.now() - 1) / 1000;
+
+            if (remainTime > 5) {
+                __sb.append("\n");
+            }
+            else {
+                __sb.append("\x13\x11", remainTime, "초 \x04후 자동으로 시작됩니다.\n");
+            }
+
+            __sb.append("\x13\x1F[게임 시작]\n");
+            __sb.append("\n");
+            __sb.append("\x13\x19┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+
+            __sb.DisplayAt(0);
+        }
+
+        setcurpl(setUser);
+        CenterView("Anywhere");
+        mouse.trackMouse(setUser);
+
+        if (mouse.status == 1
+            && 4067 <= mouse.mX && mouse.mX <= 4125
+            && 4112 <= mouse.mY && mouse.mY <= 4128) {
+            changeStatus(__Status_Initial3);
+
+            foreach (cp : EUDLoopPlayer("Human")) {
+                setcurpl(cp);
+                soundEffect.playClick();
+                soundEffect.playStartSE2();
+            }
+        }
+
+        if (_.now() - __segmentStartTime > 30000) {
+            changeStatus(__Status_Initial3);
+
+            foreach (cp : EUDLoopPlayer("Human")) {
+                setcurpl(cp);
+                soundEffect.playStartSE2();
+            }
+        }
+    }
+    else if (__opening_Status == __Status_Initial3) {
+        foreach (cp : EUDLoopPlayer("Human")) {
+            setcurpl(cp);
+            
+            __sb.insert(0);
+            __sb.append("\x13\x19┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n");
+            __sb.append("\n");
+            __sb.append("\x13\x17곧 노래가 시작됩니다!\n");
+            __sb.append("\n");
+            __sb.append("\n");
+            __sb.append("\x13\x04정답은 늘 그랬듯 \x1F붙여 쓰기, 영어는 소문자\x04로 입력하시면 됩니다.\n");
+            __sb.append("\x13\x04메들리 특성 상 \x1F스킵이 없고\x04, 10~20초 간격으로 문제가 제시 됩니다.\n");
+            __sb.append("\n");
+            __sb.append("\x13\x19┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+
+            __sb.DisplayAt(0);
+        }
+
+        if (_.now() - __segmentStartTime > 5000) {
+            foreach (cp : EUDLoopPlayer("Human")) {
+                setcurpl(cp);
+                
+                // wipe out all screen
+                __sb.insert(0);
+                __sb.append("\n\n\n\n\n\n\n\n\n\n");
+
+                __sb.DisplayAt(0);
+            }
+
+            isInOpening = false;
+        }
+    }
+    else {
+        // Something went wrong.
+        foreach (cp : EUDLoopPlayer("Human")) {
+            setcurpl(cp);
+            eprintln("Unexpected __opening_Status: ", __opening_Status);
+            Defeat();
+        }
+    }
 }

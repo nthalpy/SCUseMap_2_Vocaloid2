@@ -1,8 +1,11 @@
 import _;
 
-var segmentId = -1;
 var musicStartTime = 0;
-var segmentStartTime = 0;
+
+var __segmentId = -1;
+var __segmentStartTime = 0;
+
+var __segmentCount = 249;
 
 function init() {
     MPQAddFile("0.ogg", py_open("../../Music/A23D45205566CC0C6050961396780F2B-0.ogg", "rb").read());
@@ -256,29 +259,37 @@ function init() {
     MPQAddFile("248.ogg", py_open("../../Music/A23D45205566CC0C6050961396780F2B-248.ogg", "rb").read());
 }
 
+var isInPlay = false;
+
 const __sb = StringBuffer();
 
 function moveToNextSegment() {
-    segmentId++;
-    segmentStartTime = _.now();
+    __segmentId++;
+    __segmentStartTime = _.now();
+
+    if (__segmentCount <= __segmentId) {
+        isInPlay = false;
+        return;
+    }
 
     // 싱크 맞춰주기 위한 트릭
-    musicStartTime = _.now() - segmentId * 2280;
+    musicStartTime = _.now() - __segmentId * 2280;
 
     foreach (cp : EUDLoopPlayer("Human")) {
         setcurpl(cp);
 
-        dbstr_print(GetMapStringAddr(__sb.StringIndex), segmentId, ".ogg");
+        dbstr_print(GetMapStringAddr(__sb.StringIndex), __segmentId, ".ogg");
         __sb.Play();
     }
 }
 
 function playMusic() {
-    if (segmentId == -1) {
+    if (__segmentId == -1) {
+        isInPlay = true;
         moveToNextSegment();
     }
 
-    var dt = (_.now() - segmentStartTime);
+    var dt = (_.now() - __segmentStartTime);
 
     if (dt >= 2220) {
         moveToNextSegment();
