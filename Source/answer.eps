@@ -1,0 +1,35 @@
+import answer_autogen;
+
+object data {
+    var timeInMs;
+
+    var pStrMusicAnswer;
+    var musicAnswerIndexes;
+    var titleAnswerTimeInMs;
+
+    var pStrComposerAnswer;
+    var composerAnswerIndexes;
+    var composerAnswerTimeInMs;
+
+    var pStrReleaseDate;
+};
+
+const table = EUDArray(0);
+var tableSize = 0;
+
+function __setData(index, a1, a2, a3, a4, a5, a6) {
+    table[index] = data.alloc();
+
+    const casted = data.cast(table[index]);
+    casted.pStrMusicAnswer = a1;
+    casted.musicAnswerIndexes = a2;
+    casted.pStrComposerAnswer = a3;
+    casted.composerAnswerIndexes = a4;
+
+    casted.timeInMs = a5;
+    casted.pStrReleaseDate = a6;
+}
+
+function init() {
+    answer_autogen.load();
+}

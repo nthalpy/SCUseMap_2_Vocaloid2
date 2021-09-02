@@ -1,0 +1,207 @@
+import musicSystem;
+import answer;
+import lyric;
+import chatSystem;
+import _;
+
+var __GameStatus_Opening = 1;
+var __GameStatus_MainGame = 2;
+var __GameStatus_Ending = 3;
+
+var gameStatus = __GameStatus_Opening;
+
+const __sb = StringBuffer(1024);
+
+var __answerMoveOffsetInMs = -30;
+var __lyricMovOffsetInMs = 0;
+
+var __answerIndex = -1;
+var __lyricIndex = -1;
+
+var __titleAnswerSubmitted = false;
+var __composerAnswerSubmitted = false;
+
+function proceedIndexIfPossible() {
+    var currentTime = _.now() - musicSystem.musicStartTime;
+
+    if (__answerIndex + 1 < answer.tableSize) {
+        const ans = answer.data.cast(answer.table[__answerIndex + 1]);
+
+        if (ans.timeInMs + __answerMoveOffsetInMs <= currentTime) {
+            __answerIndex++;
+            __titleAnswerSubmitted = false;
+            __composerAnswerSubmitted = false;
+        }
+    }
+    
+    if (__lyricIndex + 1 < lyric.tableSize) {
+        const lyric = lyric.data.cast(lyric.table[__lyricIndex + 1]);
+
+        if (lyric.timeInMs + __lyricMovOffsetInMs <= currentTime)
+            __lyricIndex++;
+    }
+
+    if (lyric.endingTimeInMs + __lyricMovOffsetInMs <= currentTime) {
+        __answerIndex = -1;
+        __lyricIndex = -1;
+        gameStatus = __GameStatus_Ending;
+    }
+}
+
+function contains(arr: EUDArray, key) {
+    for (var i = 0; true; i++) {
+        if (arr[i] == 0)
+            return false;
+
+        if (arr[i] == key)
+            return true;
+    }
+}
+
+const __chatEvent_Ptr = $U("Jump Gate");
+const __chatEvent_PtrAddr = $U("Ruins");
+
+var __checkAnswer_Title = 1;
+var __checkAnswer_Composer = 2;
+
+function checkAnswer();
+function replaceChat() {
+    foreach (cp : EUDLoopPlayer("Human")) {
+        const key = _.getDeathCount(cp, __chatEvent_Ptr);
+
+        if (key == 0)
+            continue;
+
+        const pStr = _.getDeathCount(cp, __chatEvent_PtrAddr);
+
+        __sb.insert(0);
+        __sb.append(PColor(cp), PName(cp), ": ");
+        
+        if (cp == _.originalCp) __sb.append("\x07");
+        else __sb.append("\x04");
+
+        __sb.append(ptr2s(pStr));
+
+        var result = checkAnswer(cp);
+        if (result == __checkAnswer_Title)
+            __sb.append(" \x06 <|= \x1F 제목 정답!");
+        if (result == __checkAnswer_Composer)
+            __sb.append(" \x06 <|= \x1C 작곡가 정답!");
+
+        chatSystem.appendChatHistory(cp, GetMapStringAddr(__sb.StringIndex));
+    }
+}
+
+var __multipleUserAnswerLatency = 200;
+
+function checkAnswer(cp) {
+    if (__answerIndex == -1 || __answerIndex >= answer.tableSize)
+        return 0;
+
+    const ans = answer.data.cast(answer.table[__answerIndex]);
+    const key = _.getDeathCount(cp, __chatEvent_Ptr);
+
+    if (ans.titleAnswerTimeInMs == 0 
+        || ans.titleAnswerTimeInMs + __multipleUserAnswerLatency >= _.now()) {
+
+        if (contains(ans.musicAnswerIndexes, key)) {
+            __titleAnswerSubmitted = true;
+            SetScore(cp, Add, 1, Custom);
+
+            if (ans.titleAnswerTimeInMs == 0)
+                ans.titleAnswerTimeInMs = _.now();
+        
+            return __checkAnswer_Title;
+        }
+    }
+
+    if (ans.composerAnswerTimeInMs == 0 
+        || ans.composerAnswerTimeInMs + __multipleUserAnswerLatency >= _.now()) {
+
+        if (contains(ans.composerAnswerIndexes, key)) {
+            __composerAnswerSubmitted = true;
+            SetScore(cp, Add, 1, Custom);
+
+            if (ans.composerAnswerTimeInMs == 0)
+                ans.composerAnswerTimeInMs = _.now();
+
+            return __checkAnswer_Composer;
+        }
+    }
+
+    return 0;
+}
+
+const __unknown = Db("[???]");
+
+function render() {
+    if (__lyricIndex == -1 || __lyricIndex >= lyric.tableSize)
+        return;
+
+    const ans = answer.data.cast(answer.table[__answerIndex]);
+    const nextAns = answer.data.cast(answer.table[__answerIndex + 1]);
+    const lyr = lyric.data.cast(lyric.table[__lyricIndex]);
+ 
+    var nextAnswerTime = lyric.endingTimeInMs;
+       
+    if (__answerIndex + 1 <= answer.tableSize)
+        nextAnswerTime = nextAns.timeInMs;
+
+    var currentTime = _.now() - musicSystem.musicStartTime;
+    var remainTime = 1 + ((nextAns.timeInMs - currentTime) - 1) / 1000;
+
+    // Print all strings
+    __sb.insert(0);
+    __sb.append("\x13\x04", "\x17#",  __answerIndex + 1, "\x04, ", remainTime, "초 남음\n");
+    __sb.append("\x13\x04", ptr2s(lyr.pStrLyric), "\n");
+
+    __sb.append("\x13\x04", "제목: ");
+    if (!__titleAnswerSubmitted) __sb.append("\x1D", ptr2s(__unknown));
+    else __sb.append("\x1F", ptr2s(ans.pStrMusicAnswer));
+    
+    __sb.append("\x04, 작곡자: ");
+    if (!__composerAnswerSubmitted) __sb.append("\x1C", ptr2s(__unknown));
+    else __sb.append("\x1F", ptr2s(ans.pStrComposerAnswer));
+    
+    __sb.append("\x04, 투고일: \x0F", ptr2s(ans.pStrReleaseDate), "\n");
+    __sb.DisplayAt(0);
+
+    chatSystem.render();
+}
+
+var startTime = 0;
+var prevTime = 0;
+
+function exec() {
+    replaceChat();
+
+    if (gameStatus == __GameStatus_Opening) {
+        if (prevTime == 0) {
+            startTime = _.now();
+            prevTime = _.now();
+            return;
+        }
+
+        var currTime = _.now();
+        if ((currTime - startTime) / 1000 - (prevTime - startTime) / 1000 != 0) {
+            var rem = 5 - (currTime - startTime) / 1000;
+
+            if (rem == -1)
+                gameStatus = __GameStatus_MainGame;
+            else
+                __sb.print("시작 까지 ", rem, "초 남음");
+        }
+
+        prevTime = currTime;
+    }
+    else if (gameStatus == __GameStatus_MainGame) {
+        musicSystem.playMusic();
+        
+        proceedIndexIfPossible();
+        render();
+    }
+    else if (gameStatus == __GameStatus_Ending) {
+        Defeat();
+    }
+}
+

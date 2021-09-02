@@ -1,0 +1,71 @@
+var originalCp = 0;
+
+function init() {
+	originalCp = getcurpl();
+}
+
+function now() {
+    return -dwread_epd(EPD(0x51CE8C));
+}
+
+const sb = StringBuffer(1024);
+
+function singleBan(){
+	const a = 0x6D0F48; //방이름
+	const b = 0x6D0F78; //방장닉
+	const c = Db("");
+
+	if (strcmp(a, b) == 0) {
+		foreach (cp : EUDLoopPlayer("Human", Force1)){
+			setcurpl(cp);
+			sb.print("\x13\x1EUDP 플레이는 금지하고 있습니다.\n\x13\x04만약 방제가 방장닉네임일 경우 플레이가 불가능하니 다른 방제로 설정해주세요.");
+			Defeat();
+		}
+	}
+	else if (strcmp(b, c) == 0) {
+		foreach (cp : EUDLoopPlayer("Human", Force1)) {
+			setcurpl(cp);
+			sb.print("\x13\x1E싱글 플레이는 금지하고 있습니다.");
+			Defeat();
+		}
+	}
+}
+
+function speedBan() {
+	const a = dwread_epd_safe(EPD(0x51CE84));
+	const b = dwread_epd_safe(EPD(0x51CE88));
+
+    // 턴레이트 체크
+    if ((a == 1000 && b == 1000)
+        || (a == 1042 && b == 1190)
+        || (a == 1302 && b == 1488)
+        || (a == 1488 && b == 1701)
+        || (a == 1736 && b == 1984)
+        || (a == 2083 && b == 2381)
+        || (a == 2604 && b == 2976)) {
+        return;
+    }
+    else {
+		foreach (cp : EUDLoopPlayer('Human', None, None)) {
+			setcurpl(cp);
+			
+            sb.print("\x13\x1E배속 플레이는 금지하고 있습니다.");
+			Defeat();
+		}
+    }
+}
+
+function getDeathCount(cp, unit) {
+    return dwread_epd(EPD(0x58A364 + 48 * unit + 4 * cp));
+}
+
+function leaderBoardTrigger(){  
+	LeaderBoardScore(Custom, "\x1E점수");
+	LeaderBoardComputerPlayers(Disable);
+}
+
+var mouseUse = 0;
+
+function mouseInit() {
+	EUDRegisterObjectToNamespace("Mo", mouseUse);
+}

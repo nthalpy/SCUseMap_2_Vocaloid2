@@ -1,0 +1,22 @@
+import lyric_autogen;
+
+object data {
+    var timeInMs;
+    var pStrLyric;
+};
+
+const table = EUDArray(0);
+var tableSize = 0;
+var endingTimeInMs = 0;
+
+function __setData(index, a1, a2) {
+    table[index] = data.alloc();
+
+    const casted = data.cast(table[index]);
+    casted.timeInMs = a1;
+    casted.pStrLyric = a2;
+}
+
+function init() {
+    lyric_autogen.load();
+}

@@ -1,0 +1,52 @@
+import gameplay;
+import gameStatus;
+import musicSystem;
+import chatSystem;
+import answer;
+import lyric;
+import _;
+
+function onPluginStart() {
+    _.init();
+
+    randomize();
+
+    musicSystem.init();
+    chatSystem.init();
+    answer.init();
+    lyric.init();
+
+    _.singleBan();
+    _.speedBan();
+    _.mouseInit();
+    
+    _.leaderBoardTrigger();
+
+    SetMemoryEPD(EPD(0x657A9C), SetTo, 0);
+
+    foreach (cp : EUDLoopPlayer("Human", Force1)) {
+        setcurpl(cp);
+        gameStatus.initPlayer(cp);
+    }
+}
+
+function beforeTriggerExec() {
+	SetMemory(0x6509A0, SetTo, 0); // EUD 터보
+	SetMemory(0x5124F0, SetTo, 29);	// x2 배속
+}
+
+function afterTriggerExec() {
+    //gameStatus.update();
+    //gameplay.exec();
+
+    // var v = (dwread_epd(EPD(0x640B58)) + 10) % 11;
+    var v = (_.now() / 500) % 12;
+
+    var p = 0x640B60 + v * 218;
+    if (dwread(p) != 0) {
+        eprintln(v, ", ", p, ", ", ptr2s(p));
+    }
+    else {
+        eprintln(v, ", ", p);
+    }
+}

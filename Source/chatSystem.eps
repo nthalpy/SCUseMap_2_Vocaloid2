@@ -1,0 +1,64 @@
+import _;
+
+object __chatQueueElement {
+    var pStr;
+    var timestamp;
+};
+
+const __queue = EUDArray(16);
+var __queueSize = 16;
+var __queuePivot = 0;
+
+const __dbs = [
+    Db(300), Db(300), Db(300), Db(300), 
+    Db(300), Db(300), Db(300), Db(300),
+    Db(300), Db(300), Db(300), Db(300), 
+    Db(300), Db(300), Db(300), Db(300)
+];
+
+var __chatRemainTimeInMs = 5000;
+
+const __sb = StringBuffer();
+
+function init() {
+    for (var idx = 0; idx < __queueSize; idx++) {
+        __queue[idx] = __chatQueueElement.alloc();
+    }
+
+    for (var idx = 0; idx < __queueSize; idx++) {
+        const casted = __chatQueueElement.cast(__queue[idx]);
+
+        casted.pStr = __dbs[idx];
+        casted.timestamp = _.now();
+    }
+}
+
+function appendChatHistory(cp, pStrSrc) {
+    const casted = __chatQueueElement.cast(__queue[__queuePivot]);
+
+    dbstr_print(casted.pStr, ptr2s(pStrSrc));
+    casted.timestamp = _.now();
+
+    __queuePivot = (__queuePivot + 1) % __queueSize;
+}
+
+function render() {
+    var now = _.now();
+    var count = 7;
+
+    __sb.insert(0);
+    
+    for (var offset = 0; offset < count; offset++) {
+        var idx = (__queuePivot + __queueSize + offset - count) % __queueSize;
+        const casted = __chatQueueElement.cast(__queue[idx]);
+
+        if (_.now() - casted.timestamp < __chatRemainTimeInMs) {
+            __sb.append(idx, ptr2s(casted.pStr));
+        }
+
+        // no trailing crlf
+        if (offset != count - 1) {
+            __sb.append("\n");
+        }
+    }
+}
