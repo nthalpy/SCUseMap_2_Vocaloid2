@@ -45,7 +45,7 @@ function render() {
             __sb.DisplayAt(0);
         }
 
-        if (_.now() - __segmentStartTime > 9000) {
+        if (_.now() - __segmentStartTime > 5000) {
             changeStatus(__Status_Initial2);
         }
     }
@@ -67,7 +67,7 @@ function render() {
             __sb.DisplayAt(0);
         }
 
-        if (_.now() - __segmentStartTime > 9000) {
+        if (_.now() - __segmentStartTime > 8000) {
             changeStatus(__Status_Setting1);
         }
     }
@@ -143,7 +143,7 @@ function render() {
             __sb.DisplayAt(0);
         }
 
-        if (_.now() - __segmentStartTime > 9000) {
+        if (_.now() - __segmentStartTime > 8000) {
             foreach (cp : EUDLoopPlayer("Human")) {
                 setcurpl(cp);
 
