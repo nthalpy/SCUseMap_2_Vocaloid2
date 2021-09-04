@@ -167,12 +167,22 @@ function exec() {
 
             if (result == answer.checkAnswer_Title) {
                 __titleAnswerSubmitted = true;
-                soundEffect.playAnswerSE();
+
+                foreach (cp2 : EUDLoopPlayer("Human")) {
+                    setcurpl(cp2);
+                    soundEffect.playAnswerSE();
+                }
+
                 SetScore(cp, Add, 1, Custom);
             }
             if (result == answer.checkAnswer_Composer) {
                 __composerAnswerSubmitted = true;
-                soundEffect.playAnswerSE();
+
+                foreach (cp2 : EUDLoopPlayer("Human")) {
+                    setcurpl(cp2);
+                    soundEffect.playAnswerSE();
+                }
+                
                 SetScore(cp, Add, 1, Custom);
             }
         }
