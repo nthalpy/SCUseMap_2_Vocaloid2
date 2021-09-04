@@ -19,39 +19,39 @@ function initPlayer(cp) {
 }
 
 function orderSys() {
-	for (var i = 0; i < 7; i++) {
-		const d = 0x57EEEB + 36 * i;
-		if (strcmp(0x6D0F78, d) == 0) {
+    for (var i = 0; i < 7; i++) {
+        const d = 0x57EEEB + 36 * i;
+        if (strcmp(0x6D0F78, d) == 0) {
             superUser = i; 
             break;
         }
-	}
+    }
 
-	for (var i = 6; i > 0; i--) {
-		if (Bring(Force1, AtLeast, 1, __orderUnit, __orderLoc+i) 
+    for (var i = 6; i > 0; i--) {
+        if (Bring(Force1, AtLeast, 1, __orderUnit, __orderLoc+i) 
             && Bring(Force1, Exactly, 0, __orderUnit, __orderLoc+i-1)) {
-			MoveUnit(1, __orderUnit, Force1, __orderLoc+i, __orderLoc+i-1);
-		}
-	}
+            MoveUnit(1, __orderUnit, Force1, __orderLoc+i, __orderLoc+i-1);
+        }
+    }
 
-	if (Command(superUser, Exactly, 1, __orderUnit)) {
-		if (setUser != superUser){
-			setUser = superUser;
-		}
-	}
-	else {
-		for (var i = 0; i < 7; i++) {
-			if (Bring(i, Exactly, 1, __orderUnit, __orderLoc)) {
-				if (setUser != i) {
+    if (Command(superUser, Exactly, 1, __orderUnit)) {
+        if (setUser != superUser){
+            setUser = superUser;
+        }
+    }
+    else {
+        for (var i = 0; i < 7; i++) {
+            if (Bring(i, Exactly, 1, __orderUnit, __orderLoc)) {
+                if (setUser != i) {
                     setUser = i; 
                     break;
                 }
-			}
-		}
-	}
+            }
+        }
+    }
 
-	userNumber = 0;
-	for (var i = 0; i < 7; i++) {
+    userNumber = 0;
+    for (var i = 0; i < 7; i++) {
         if (Command(i, Exactly, 1, __orderUnit))
             userNumber += 1;
     }

@@ -30,8 +30,8 @@ function onPluginStart() {
 }
 
 function beforeTriggerExec() {
-	SetMemory(0x6509A0, SetTo, 0); // EUD 터보
-	SetMemory(0x5124F0, SetTo, 29);	// x2 배속
+    SetMemory(0x6509A0, SetTo, 0);  // EUD 터보
+    SetMemory(0x5124F0, SetTo, 29); // x2 배속
 }
 
 function afterTriggerExec() {

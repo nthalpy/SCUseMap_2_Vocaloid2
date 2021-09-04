@@ -1,7 +1,7 @@
 var originalCp = 0;
 
 function init() {
-	originalCp = getcurpl();
+    originalCp = getcurpl();
 }
 
 function now() {
@@ -11,29 +11,29 @@ function now() {
 const sb = StringBuffer(1024);
 
 function singleBan(){
-	const a = 0x6D0F48; //방이름
-	const b = 0x6D0F78; //방장닉
-	const c = Db("");
+    const a = 0x6D0F48; //방이름
+    const b = 0x6D0F78; //방장닉
+    const c = Db("");
 
-	if (strcmp(a, b) == 0) {
-		foreach (cp : EUDLoopPlayer("Human", Force1)){
-			setcurpl(cp);
-			sb.print("\x13\x1EUDP 플레이는 금지하고 있습니다.\n\x13\x04만약 방제가 방장닉네임일 경우 플레이가 불가능하니 다른 방제로 설정해주세요.");
-			Defeat();
-		}
-	}
-	else if (strcmp(b, c) == 0) {
-		foreach (cp : EUDLoopPlayer("Human", Force1)) {
-			setcurpl(cp);
-			sb.print("\x13\x1E싱글 플레이는 금지하고 있습니다.");
-			Defeat();
-		}
-	}
+    if (strcmp(a, b) == 0) {
+        foreach (cp : EUDLoopPlayer("Human", Force1)){
+            setcurpl(cp);
+            sb.print("\x13\x1EUDP 플레이는 금지하고 있습니다.\n\x13\x04만약 방제가 방장닉네임일 경우 플레이가 불가능하니 다른 방제로 설정해주세요.");
+            Defeat();
+        }
+    }
+    else if (strcmp(b, c) == 0) {
+        foreach (cp : EUDLoopPlayer("Human", Force1)) {
+            setcurpl(cp);
+            sb.print("\x13\x1E싱글 플레이는 금지하고 있습니다.");
+            Defeat();
+        }
+    }
 }
 
 function speedBan() {
-	const a = dwread_epd_safe(EPD(0x51CE84));
-	const b = dwread_epd_safe(EPD(0x51CE88));
+    const a = dwread_epd_safe(EPD(0x51CE84));
+    const b = dwread_epd_safe(EPD(0x51CE88));
 
     // 턴레이트 체크
     if ((a == 1000 && b == 1000)
@@ -46,12 +46,12 @@ function speedBan() {
         return;
     }
     else {
-		foreach (cp : EUDLoopPlayer('Human', None, None)) {
-			setcurpl(cp);
-			
+        foreach (cp : EUDLoopPlayer('Human', None, None)) {
+            setcurpl(cp);
+            
             sb.print("\x13\x1E배속 플레이는 금지하고 있습니다.");
-			Defeat();
-		}
+            Defeat();
+        }
     }
 }
 
@@ -60,6 +60,6 @@ function getDeathCount(cp, unit) {
 }
 
 function leaderBoardTrigger(){  
-	LeaderBoardScore(Custom, "\x1E점수");
-	LeaderBoardComputerPlayers(Disable);
+    LeaderBoardScore(Custom, "\x1E점수");
+    LeaderBoardComputerPlayers(Disable);
 }
